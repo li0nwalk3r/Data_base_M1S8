@@ -18,20 +18,19 @@ my $filename = $ARGV[1];
 my $input= join("",$path_to_file,$filename);
 my $csv=Text::CSV->new();
 
+my $id_animal;
+
 open(INPUT, $input) || die "Can't open file $input";
 
 while (<INPUT>){
+    next if ($. == 1);
     if($csv->parse($_)) {       #checks to see if data exists in $_ and parses it if it does
-	my @fields=$csv->fields;  # puts the values from each field in an array
-	#print join(" ",@fields,"\n");
-	print join(" ",@fields[0,1,2,3],"\n");
-	my $elements = @fields;
-    }
-    print $elements;
+	    my @fields=$csv->fields;  # puts the values from each field in an array
+	    $id_animal = $fields[0];
+	    print $id_animal,"\n";
+	} 
 }
 
 
-
 close(INPUT);
-
 
