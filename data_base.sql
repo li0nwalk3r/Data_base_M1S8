@@ -1,4 +1,4 @@
-create table Animals(
+CREATE TABLE Animals(
 
 IdAnimal int,
 NameAnimal text,
@@ -6,40 +6,35 @@ TypeAnimal text,
 ColorAnimal text,
 SexAnimal text,
 
-PRIMARY KEY (IdAnimal),
-);
+PRIMARY KEY (IdAnimal));
 
-create table Owner(
+CREATE TABLE Owner(
 
+IdAnimal text,
 Surname text,
 Name text,
-Street text,
 Cellphone int,
-
-PRIMARY KEY (Surname, Name),
-);
-
-create table Address(
-
 Street text,
-CodePostal int,
 City text,
-PRIMARY KEY (
-);
+PostalCode int,
 
-create table City(
+PRIMARY KEY (Cellphone));
+
+CREATE TABLE City(
 
 City text,
 NbHabitantsCity int,
-CodeCity int,
-);
+DepartmentCode int,
 
-create table HealthBook(
+PRIMARY KEY (City));
+
+CREATE TABLE HealthBook(
 
 IdAnimal int,
 Sterilized text,
-YearBirth int,
+YearOfBirth int,
 Vaccine1 int,
 Vaccine2 int,
 Vaccine3 int,
-);
+
+PRIMARY KEY (IdAnimal))
