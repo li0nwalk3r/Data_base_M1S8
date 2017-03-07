@@ -37,4 +37,4 @@ Vaccine1 int,
 Vaccine2 int,
 Vaccine3 int,
 
-PRIMARY KEY (IdAnimal))
+PRIMARY KEY (IdAnimal));
