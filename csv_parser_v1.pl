@@ -1,7 +1,7 @@
 #Make sure you install the following modules before running this script
 #To run it just write on cmdline - perl csv_parser.pl "PATH_TO_FILE" "FILENAME.ext"
 # !/usr/bin/perl
-use DBI;
+#use DBI;
 use strict;
 use warnings;
 use Text::CSV;
@@ -38,16 +38,15 @@ sub parseCSV {
 		
 	    my @animals = join(",",@fields[0,1,2,3,4]); #change to the number of fields (variables) of interest
 
-	    
 	    #Connect to the source and handle connection
 	    my $dbh = DBI->connect("DBI:Pg:dbname=mfnabais;host=dbserver","mfnabais", "", {'RaiseError' => 1}) ;
-		
+       	
 	    #Prepare insert statement for table animals
 	    my $sql = $dbh-> prepare("INSERT INTO Animals VALUES (?,?,?,?,?)") || die $dbh->errstr;
 	    
 	    foreach my $elem (@animals){
-		$sql-> execute(split(",",$elem)) || die $dbh-> errstr;
-		print $elem;
+	    	$sql-> execute(split(",",$elem)) || die $dbh-> errstr;
+	    	print $elem;
 	    }
 
 	    
@@ -57,9 +56,10 @@ sub parseCSV {
     
 	}
 
-    close(INPUT);
-
     }
+
+    close(INPUT);
 }
 
 parseCSV();
+
