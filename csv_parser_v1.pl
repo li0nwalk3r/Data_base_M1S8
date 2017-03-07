@@ -21,8 +21,6 @@ sub parseCSV {
     my $input= join("",$path_to_file,$filename);
     my $csv=Text::CSV->new();
 
-    my @id_animal;
-
     open(INPUT, $input) || die "Can't open file $input";
 
     while (<INPUT>){
