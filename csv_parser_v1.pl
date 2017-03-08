@@ -29,27 +29,34 @@ sub parseCSV {
 	chomp($_);
 	if($csv->parse($_)) {  #checks to see if data exists in $_ and parses it if it does
 	    
-	    my @fields=$csv->fields;  # puts the values from each field in an array
+	    my @fields=$csv->fields();  # puts the values from each field in an array
 	    
 	    for my $elem (@fields){
 		$elem= "NULL" if (!defined($elem) || ($elem eq "")); #replace empty values with NULL
 		    
 	    } 
 		
-	    my @animals = join(",",@fields[0,1,2,3,4]); #change to the number of fields (variables) of interest
 
 	    #Connect to the source and handle connection
 	    my $dbh = DBI->connect("DBI:Pg:dbname=mfnabais;host=dbserver","mfnabais", "", {'RaiseError' => 1}) ;
        	
 	    #Prepare insert statement for table animals
-	    my $sql = $dbh-> prepare("INSERT INTO Animals VALUES (?,?,?,?,?)") || die $dbh->errstr;
-	    
+	    my $sql_animals = $dbh-> prepare("INSERT INTO animals VALUES (?,?,?,?,?)") || die $dbh->errstr;
+
+	    my @animals = join(",",@fields[0,1,2,3,4]); #change to the number of fields (variables) of interest
+
 	    foreach my $elem (@animals){
-	    	$sql-> execute(split(",",$elem)) || die $dbh-> errstr;
-	    	print $elem;
+	    	$sql_animals-> execute(split(",",$elem)) || die $dbh-> errstr;
+	    }
+       	
+	    #Prepare insert statement for table owner
+	    my $sql_owner = $dbh-> prepare("INSERT INTO owner VALUES (?,?,?,?,?,?)") || die $dbh->errstr;
+
+	    my @owner = join(",",@fields[0,11,12,10,13,15,14]); #change to the number of fields (variables) of interest
+	    foreach my $elem (@owner){
+	    	$sql_owner-> execute(split(",",$elem)) || die $dbh-> errstr;
 	    }
 
-	    
 	    
 	    $dbh->disconnect();
 	 
@@ -62,4 +69,3 @@ sub parseCSV {
 }
 
 parseCSV();
-
