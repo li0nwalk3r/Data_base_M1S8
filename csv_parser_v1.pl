@@ -1,12 +1,12 @@
 #Make sure you install the following modules before running this script
 #To run it just write on cmdline - perl csv_parser.pl "PATH_TO_FILE" "FILENAME.ext"
 # !/usr/bin/perl
-#use DBI;
+use DBI;
 use strict;
 use warnings;
 use Text::CSV;
 
-sub parseCSV {
+sub parseCSV() {
     
     # Check validity of command-line args
     my $num_args = $#ARGV + 1;
@@ -19,53 +19,80 @@ sub parseCSV {
     my $path_to_file = $ARGV[0];
     my $filename = $ARGV[1];
     my $input= join("",$path_to_file,$filename);
-    my $csv=Text::CSV->new();
-
-    open(INPUT, $input) || die "Can't open file $input";
-
-    while (<INPUT>){
-	
-	next if ($. == 1);
-	chomp($_);
-	if($csv->parse($_)) {  #checks to see if data exists in $_ and parses it if it does
-	    
-	    my @fields=$csv->fields();  # puts the values from each field in an array
-	    
-	    for my $elem (@fields){
-		$elem= "NULL" if (!defined($elem) || ($elem eq "")); #replace empty values with NULL
-		    
-	    } 
-		
-
-	    #Connect to the source and handle connection
-	    my $dbh = DBI->connect("DBI:Pg:dbname=mfnabais;host=dbserver","mfnabais", "", {'RaiseError' => 1}) ;
-       	
-	    #Prepare insert statement for table animals
-	    my $sql_animals = $dbh-> prepare("INSERT INTO animals VALUES (?,?,?,?,?)") || die $dbh->errstr;
-
-	    my @animals = join(",",@fields[0,1,2,3,4]); #change to the number of fields (variables) of interest
-
-	    foreach my $elem (@animals){
-	    	$sql_animals-> execute(split(",",$elem)) || die $dbh-> errstr;
-	    }
-       	
-	    #Prepare insert statement for table owner
-	    my $sql_owner = $dbh-> prepare("INSERT INTO owner VALUES (?,?,?,?,?,?)") || die $dbh->errstr;
-
-	    my @owner = join(",",@fields[0,11,12,10,13,15,14]); #change to the number of fields (variables) of interest
-	    foreach my $elem (@owner){
-	    	$sql_owner-> execute(split(",",$elem)) || die $dbh-> errstr;
-	    }
-
-	    
-	    $dbh->disconnect();
-	 
     
-	}
+    open (my $fh, "<", $input) || die "Can't open file $input";
+    
+    my $csv=Text::CSV->new();
+    
+    my @idAnimal;
+    my @nameAnimal;
+    my @typeAnimal;
+    my @color;
+    my @sexe;  
+    my @sterilized;
+    my @yearOfBirth;
+    my @vaccin1;
+    my @vaccin2;
+    my @vaccin3;
+    my @cellphone; 
+    my @surname;
+    my @name;
+    my @street;
+    my @postalCode;
+    my @city;
+    my @nbHabitants;
+    my @departmentCode;
+    my @tmpCellphone;
+    
+    while (my $row = $csv -> getline($fh)){
+	print "@$row\n";
+	
+	push @idAnimal, $row->[0];
+	push @nameAnimal,$row->[1];
+	push @typeAnimal , $row->[2];
+	push @color,$row->[3];
+	push @sexe, $row->[4];
+	push @sterilized ,$row->[5];
+	push @yearOfBirth , $row->[6];
+	push @vaccin1, $row->[7];
+	push @vaccin2 , $row->[8];
+	push @vaccin3 , $row->[9];
+	push @cellphone, $row->[10];
+	push @surname , $row->[11];
+	push @name , $row->[12];
+	push @street , $row->[13];
+	push @postalCode , $row->[14];
+	push @city ,$row->[15];
+	push @nbHabitants , $row->[16];
+	push @departmentCode , $row->[17];
 
     }
+    
+    close($input);
 
-    close(INPUT);
+	#Connect to the source and handle connection
+	my $dbh = DBI->connect("DBI:Pg:dbname=mfnabais;host=dbserver","mfnabais", "", {'RaiseError' => 1}) ;
+       	
+	#Prepare insert statement for table animals
+	
+
+	for (my $i = 0; $i < $#idAnimal; $i++){
+
+	  # my $sql_animals = $dbh-> do("INSERT INTO animals (idanimal, nameanimal, typeanimal, coloranimal, sexanimal,cellphone) VALUES ($idAnimal[$i],'$nameAnimal[$i]','$typeAnimal[$i]','$color[$i]','$sexe[$i]',$cellphone[$i])") || die $dbh->errstr;
+	    if (scalar(grep(/$cellphone[$i]/,@tmpCellphone)) eq 0){
+		push @tmpCellphone, $cellphone[$i];
+	    }
+	    
+	    
+	}
+        
+    
+
+
+
+	    
+	$dbh->disconnect();
+
 }
 
 parseCSV();
