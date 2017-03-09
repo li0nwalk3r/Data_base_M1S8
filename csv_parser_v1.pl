@@ -1,7 +1,7 @@
 #Make sure you install the following modules before running this script
 #To run it just write on cmdline - perl csv_parser.pl "PATH_TO_FILE" "FILENAME.ext"
 # !/usr/bin/perl
-use DBI;
+#use DBI;
 use strict;
 use warnings;
 use Text::CSV;
@@ -43,9 +43,11 @@ sub parseCSV() {
     my @nbHabitants;
     my @departmentCode;
     my @tmpCellphone;
+    my @tmpCity;
+
+    $csv-> getline($fh);
     
     while (my $row = $csv -> getline($fh)){
-	print "@$row\n";
 	
 	push @idAnimal, $row->[0];
 	push @nameAnimal,$row->[1];
@@ -64,34 +66,35 @@ sub parseCSV() {
 	push @postalCode , $row->[14];
 	push @city ,$row->[15];
 	push @nbHabitants , $row->[16];
-	push @departmentCode , $row->[17];
+	push @departmentCode , $row->[17]
 
     }
     
-    close($input);
+    close($fh);
 
-	#Connect to the source and handle connection
-	my $dbh = DBI->connect("DBI:Pg:dbname=mfnabais;host=dbserver","mfnabais", "", {'RaiseError' => 1}) ;
-       	
-	#Prepare insert statement for table animals
-	
-
-	for (my $i = 0; $i < $#idAnimal; $i++){
-
-	  # my $sql_animals = $dbh-> do("INSERT INTO animals (idanimal, nameanimal, typeanimal, coloranimal, sexanimal,cellphone) VALUES ($idAnimal[$i],'$nameAnimal[$i]','$typeAnimal[$i]','$color[$i]','$sexe[$i]',$cellphone[$i])") || die $dbh->errstr;
-	    if (scalar(grep(/$cellphone[$i]/,@tmpCellphone)) eq 0){
-		push @tmpCellphone, $cellphone[$i];
-	    }
-	    
-	    
-	}
-        
+    #Connect to the source and handle connection
+    my $dbh = DBI->connect("DBI:Pg:dbname=mfnabais;host=dbserver","mfnabais", "", {'RaiseError' => 1}) ;
     
+    #Insert values into database (eliminating the duplicates)
 
+    for (my $i = 0; $i < $#idAnimal; $i++){
 
+	my $sql_animals = $dbh-> do("INSERT INTO animals (idanimal, nameanimal, typeanimal, coloranimal, sexanimal,cellphone) VALUES ($idAnimal[$i],'$nameAnimal[$i]','$typeAnimal[$i]','$color[$i]','$sexe[$i]',$cellphone[$i])") || die $dbh->errstr;
 
-	    
-	$dbh->disconnect();
+	my $sql_healtbook = $dbh-> do("INSERT INTO healthbook (idanimal, sterilized, yearofbirth, vaccine1, vaccine2, vaccine3) VALUES ($idAnimal[$i],'$sterilized[$i]',$yearOfBirth[$i],$vaccine1[$i],$vaccine2[$i],$vaccine3[$i])") || die $dbh->errstr;
+	
+	if (scalar(grep(/$cellphone[$i]/,@tmpCellphone)) eq 0){
+	    push @tmpCellphone, $cellphone[$i];
+	    my $sql_owner= $dbh-> do("INSERT INTO owner (surname, name, cellphone, street, city, postalcode) VALUES ('$surname[$i]','$name[$i]',$cellphone[$i],'$street[$i]','$city[$i]',$postalcode[$i])") || die $dbh->errstr;
+	}
+	
+	if (scalar(grep(/$city[$i]/,@tmpCity)) eq 0){
+	    push @tmpCity, $city[$i];
+	    my $sql_city= $dbh-> do("INSERT INTO city (city, nbhabitantscity, departmentcode) VALUES ('$city[$i]', $nbHabitants[$i] ,departmentCode[$i])") || die $dbh->errstr;
+	}    
+    }
+       
+    $dbh->disconnect();
 
 }
 
